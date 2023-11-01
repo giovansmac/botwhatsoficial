@@ -4,6 +4,7 @@ import { queryMessage } from './utils/exporttest'
 import { getDFcustomer } from './utils/similaritySrc'
 import {reviseTextWithGPT3} from './utils/exporttest'
 import {stringsRankedByRelatedness} from './utils/similaritySrc'
+import { redisset } from './lib/redis'
 
 
 export async function resChat(query:string){
@@ -27,5 +28,24 @@ console.log(customerkey)
 return customerkey
 }*/
 //codeHistory('#sk-93177', 'customer:+userteste4:chat:' )
+
+export async function inatividade(key: string) {
+    let chat = JSON.parse((await redisset.get(key)) || "{}")
+        let changestatus: boolean = false
+        let chatDate = new Date(chat.chatAt);
+        // Data e hora atual
+        const dataHoraAtual = new Date();
+        // Calcule a diferença em milissegundos
+        const diferencaEmMilissegundos = dataHoraAtual.getTime() - chatDate.getTime();
+        // Calcule a diferença em minutos
+        const diferencaEmMinutos = Math.floor(diferencaEmMilissegundos / (1000 * 60));
+        // Verifique se a diferença em minutos é maior que 30
+        if (diferencaEmMinutos > 30) {
+            changestatus = true
+        } else {
+          console.log('Status não atualizado.');
+        }
+        return changestatus
+    }
 
 

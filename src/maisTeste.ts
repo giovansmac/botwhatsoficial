@@ -6,6 +6,7 @@ import {getUserEmbedding} from './utils/exporttest'
 import { ChatCompletionMessage } from "openai/resources/chat"
 import { initPrompt } from './utils/initPrompt'
 import { getDFcustomer } from './utils/similaritySrc'
+import {inatividade} from './teste'
 
 
 
@@ -68,12 +69,13 @@ disableWelcome: true,
   const customerName = message.author
   let customerKey = `customer:${customerPhone}:chat:`
   const keys = (await redisset.keys(customerKey+'*')|| null)
+  const tempoEmMilissegundos = 30 * 60 * 1000   
  
-
 
   let lastChat;
   let orderCode = `#sk-${("00000" + Math.random()).slice(-5)}`
   let embedding = await getUserEmbedding(orderCode)
+  customerKey = customerKey+orderCode
   
   if (message.body.includes('#sk-')) {
     // Extrair o código do chamado do corpo da mensagem
@@ -150,6 +152,13 @@ disableWelcome: true,
     customerChat.messages.push({
       role: "assistant",
       content,})
+
+      const inativ =  setTimeout(async () => {await inatividade(customerKey)}, tempoEmMilissegundos);
+      if(inativ){
+       customerChat.messages.push({
+         role: "assistant",
+         content: `atendimento com código:${orderCode} encerrado por inatividade, para dar continuidade neste atendimento, digite o código na primeira menssagem. Desde já grato.`},)
+      }
 
   console.debug(customerPhone, "🤖", content)
 
