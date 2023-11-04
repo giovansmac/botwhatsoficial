@@ -14,7 +14,7 @@ import {inatividade} from './teste'
 const simulatedMessage: any = {
     id: 0, // Um ID único para a mensagem
     status: "",
-    body: 'Boa tarde, tudo certo?', // O corpo da mensagem
+    body: 'Estou com problema no meu login', // O corpo da mensagem
     from: 'userteste7',
     type: 'chat', // O tipo da mensagem (pode ser 'chat', 'image', 'video', etc.)
     t: new Date().getTime(), // A data e hora da mensagem como timestamp
@@ -51,7 +51,7 @@ export async function completion(
 
 
 ///tem que colocar essa função dentro do start client quando for subir pra produção
-const tempoEmMilissegundos = 1 * 60 * 1000   
+const tempoEmMilissegundos = 30 * 60 * 1000   
   setTimeout(async () => {
   const chat = await inatividade()
   if (chat.status != ""){
@@ -84,16 +84,16 @@ const tempoEmMilissegundos = 1 * 60 * 1000
     let lastChat;
     let orderCode = `#sk-${("00000" + Math.random()).slice(-5)}`
     let embedding = await getUserEmbedding(orderCode)
-    customerKey = customerKey+orderCode
+    
     
     if (message.body.includes('#sk-')) {
       // Extrair o código do chamado do corpo da mensagem
       const codeMatch = message.body.match(/#sk-\d+/);
+      console.log(codeMatch)
       
       if (codeMatch) {
         const customerCode = codeMatch[0]; // Obtém o código do chamado
         customerKey = customerKey+`${customerCode}`; // Crie a chave do histórico
-        console.log(customerKey)
         // Verifique se há histórico para o código do chamado
         const chatHistory = await redisset.get(customerKey);
     
@@ -123,7 +123,7 @@ const tempoEmMilissegundos = 1 * 60 * 1000
       }
      }
     } 
-
+    customerKey = customerKey+orderCode
     const customerChat: CustomerChat =
     (lastChat?.status === "open" || lastChat?.status === 'pending')
       ? (lastChat as CustomerChat)
@@ -160,8 +160,8 @@ const tempoEmMilissegundos = 1 * 60 * 1000
         role: "assistant",
         content,})
 
-        content =
-      (await completion(customerChat.messages)) || "Não entendi..."
+      /*  content =
+      (await completion(customerChat.messages)) || "Não entendi..."*/
 
         console.debug(customerPhone, "🤖", content)
 
